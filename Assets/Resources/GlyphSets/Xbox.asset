@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ede85bf520584647a3c6495cf6a9e52, type: 3}
+  m_Name: Xbox
+  m_EditorClassIdentifier: Assembly-CSharp::GlyphSet
+  InteractGlyph: {fileID: -3501362652799452750, guid: f77cab08f9e50f440ab4c5761e84fc85, type: 3}
+  AttackGlyph: {fileID: -7366704111171050986, guid: fb9fe8b6502dd2d4e876dcc7ec154d89, type: 3}
+  RunGlyph: {fileID: 6854779749130480533, guid: b2b78c72b568664428b041f91540e017, type: 3}
+  RollGlyph: {fileID: 5818242820201044539, guid: 199fdeaa3eee35f429e775a8d1dc7545, type: 3}
+  UpGlyph: {fileID: 4499739181289530500, guid: 5bd8666a15953ed4ba68341292fa0cf8, type: 3}
+  UpAltGlyph: {fileID: -4339950034317056966, guid: 7c20aeca83e998342b1dd7ab63ce6a19, type: 3}
+  DownGlyph: {fileID: -2504281122022273609, guid: c1b72639aea151e449f10b92910529ea, type: 3}
+  DownAltGlyph: {fileID: -1210888858026343631, guid: 0a8a2e4f6357df541a768fc56f60d3b4, type: 3}
+  LeftGlyph: {fileID: -287138501739487331, guid: eefd7d8aeee3a7940b28bbcb681ff3f0, type: 3}
+  LeftAltGlyph: {fileID: -4267833183331598518, guid: a81a8e2ae9c142b42a1075c3f7ba990f, type: 3}
+  RightGlyph: {fileID: -9076793481811211610, guid: f634d2331d4b2e24d86ee7ee8a703a35, type: 3}
+  RightAltGlyph: {fileID: 7080695407509127934, guid: 3a1a25b4527608d4d9a54d069574cf67, type: 3}

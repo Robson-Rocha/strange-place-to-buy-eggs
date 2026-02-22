@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ede85bf520584647a3c6495cf6a9e52, type: 3}
+  m_Name: Keyboard
+  m_EditorClassIdentifier: Assembly-CSharp::GlyphSet
+  InteractGlyph: {fileID: 4548990520959059042, guid: 750bf9ff8e03a7945a5b193ddb820090, type: 3}
+  AttackGlyph: {fileID: 3148735521595566542, guid: 9785df85ad5dcbf40ad6120a0c015ee2, type: 3}
+  RunGlyph: {fileID: -5535934937228911253, guid: 86d1ba4209f37744f8e5deb33aae54c4, type: 3}
+  RollGlyph: {fileID: 6403863294146843619, guid: 8f6837b55eba31d46b7b40c4e48f2031, type: 3}
+  UpGlyph: {fileID: -6151611895932484860, guid: 774b235d0f32a1142be6ee208e430707, type: 3}
+  UpAltGlyph: {fileID: 4394881195741063718, guid: 55bdadd4aff7b2c4380bc5c42f5c46d9, type: 3}
+  DownGlyph: {fileID: -8521745929877482689, guid: f8b5f5f94292a8a4dac244cc12492a87, type: 3}
+  DownAltGlyph: {fileID: -4902522884718247673, guid: ef191a5e2e319604582b09fcb00a00d0, type: 3}
+  LeftGlyph: {fileID: -1919489248178637943, guid: 48c3b52b17548124e82fe83888ba80a4, type: 3}
+  LeftAltGlyph: {fileID: 2005742388012605742, guid: 0749c79e07f3529479c41080b645bac2, type: 3}
+  RightGlyph: {fileID: -7420596499392899355, guid: cb625872cc28554459e30564ef028047, type: 3}
+  RightAltGlyph: {fileID: 6498040772250398094, guid: ea404768aa9fa034b8ea163da448a8f7, type: 3}

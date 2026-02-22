@@ -1,0 +1,14 @@
+:root {
+}
+
+#CoinsLabel {
+    color: white;
+    text-shadow: 0 0 10px rgb(0, 0, 0);
+}
+
+.heart-shake {
+    translate: 5px 0;
+    transition-property: translate;
+    transition-duration: 0.1s;
+    transition-timing-function: ease-in-out;
+}
