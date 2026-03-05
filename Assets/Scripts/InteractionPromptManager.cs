@@ -5,7 +5,6 @@ using UnityEngine;
 public class InteractionPromptManager : SingletonMonoBehaviour<InteractionPromptManager>
 {
     [SerializeField] private InteractionPromptController PromptPrefab;
-    [SerializeField] private Transform CanvasTransform;
 
     private InteractionPromptController _activePrompt;
     private Transform _targetTransform;
@@ -18,9 +17,9 @@ public class InteractionPromptManager : SingletonMonoBehaviour<InteractionPrompt
     {
         if (!base.CanAwake()) return;
 
-        if (PromptPrefab != null && CanvasTransform != null)
+        if (PromptPrefab != null)
         {
-            _activePrompt = Instantiate(PromptPrefab, CanvasTransform);
+            _activePrompt = Instantiate(PromptPrefab);
             _activePrompt.Hide(ResetInteractionPrompt);
         }
     }
@@ -36,7 +35,7 @@ public class InteractionPromptManager : SingletonMonoBehaviour<InteractionPrompt
         _targetTransform = targetTransform;
         _offset = offset;
         _hidden = false;
-        _activePrompt.SetPrompt(glyph, verb);
+        _activePrompt.SetPrompt(glyph, $"%0 {verb}");
         _activePrompt.Show(targetTransform.position + offset);
     }
 

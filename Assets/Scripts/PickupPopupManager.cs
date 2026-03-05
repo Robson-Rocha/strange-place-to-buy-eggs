@@ -1,5 +1,4 @@
 using RobsonRocha.UnityCommon;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,10 +6,13 @@ using UnityEngine;
 public class PickupPopupManager : SingletonMonoBehaviour<PickupPopupManager>
 {
     [SerializeField] private PickupPopupController PickupPopupPrefab;
-    [SerializeField] private Transform CanvasTransform;
 
     private const float POSITION_TOLERANCE = 0.5f;
-    private readonly Dictionary<Vector3, float> _nextAvailableTimeByPosition = new();
+    private const float POSITION_TOLERANCE_SQR = POSITION_TOLERANCE * POSITION_TOLERANCE;
+    private readonly Dictionary<Vector3, int> _activePopupCountByPosition = new();
+    
+    // Cache list to avoid allocating during iteration
+    private readonly List<Vector3> _keysCache = new();
 
     protected override void Awake()
     {
@@ -20,53 +22,62 @@ public class PickupPopupManager : SingletonMonoBehaviour<PickupPopupManager>
     public void ShowPopup(
         string text, Vector3 worldPosition,
         Color color = default, Direction direction = Direction.Up,
-        float speed = 0.5f, float duration = 2f, SoundEffect soundEffect = null, bool immediate = false)
+        float speed = 0.5f, float duration = 2f, SoundEffect soundEffect = null)
     {
-        if (PickupPopupPrefab == null || CanvasTransform == null)
+        if (PickupPopupPrefab == null)
         {
-            Debug.LogWarning("PickupPopupManager: Missing prefab or canvas transform.");
+            Debug.LogWarning("PickupPopupManager: Missing prefab.");
             return;
         }
 
-        float delay = 0f;
-
-        if (!immediate)
-        {
-            float staggerInterval = Mathf.Max(0.1f, 0.3f / speed);
-            delay = CalculateDelay(worldPosition, staggerInterval);
-        }
-
-        PickupPopupController popup = Instantiate(PickupPopupPrefab, CanvasTransform);
-
-        if (delay > 0f)
-            StartCoroutine(DelayedShow(popup, worldPosition, text, color, direction, speed, duration, delay, soundEffect));
-        else
-        {
-            popup.Show(worldPosition, text, color, direction, speed, duration);
-            if (soundEffect != null) SoundManager.Instance.PlaySfx(soundEffect);
-        }
+        speed = CalculateSpeed(worldPosition, speed);
+        PickupPopupController popup = Instantiate(PickupPopupPrefab);
+        popup.Show(worldPosition, text, color, direction, speed, duration, () => HandlePopupComplete(worldPosition));
+        if (soundEffect != null) SoundManager.Instance.PlaySfx(soundEffect);
     }
 
-    private float CalculateDelay(Vector3 worldPosition, float staggerInterval)
+    private float CalculateSpeed(Vector3 worldPosition, float speed)
     {
-        foreach (var key in _nextAvailableTimeByPosition.Keys)
+        // Use sqrMagnitude to avoid sqrt allocation
+        foreach (var kvp in _activePopupCountByPosition)
         {
-            if (Vector3.Distance(key, worldPosition) < POSITION_TOLERANCE)
+            if ((kvp.Key - worldPosition).sqrMagnitude < POSITION_TOLERANCE_SQR)
             {
-                float delay = Mathf.Max(0f, _nextAvailableTimeByPosition[key] - Time.time);
-                _nextAvailableTimeByPosition[key] = Time.time + delay + staggerInterval;
-                return delay;
+                int newCount = kvp.Value + 1;
+                _activePopupCountByPosition[kvp.Key] = newCount;
+                return newCount * speed;
             }
         }
 
-        _nextAvailableTimeByPosition[worldPosition] = Time.time + staggerInterval;
-        return 0f;
+        _activePopupCountByPosition.Add(worldPosition, 1);
+        return speed;
     }
 
-    private IEnumerator DelayedShow(PickupPopupController popup, Vector3 worldPosition, string text, Color color, Direction direction, float speed, float duration, float delay, SoundEffect soundEffect)
+    private void HandlePopupComplete(Vector3 worldPosition)
     {
-        yield return new WaitForSeconds(delay);
-        popup.Show(worldPosition, text, color, direction, speed, duration);
-        if (soundEffect != null) SoundManager.Instance.PlaySfx(soundEffect);
+        Vector3 keyToRemove = default;
+        bool found = false;
+        
+        foreach (var kvp in _activePopupCountByPosition)
+        {
+            if ((kvp.Key - worldPosition).sqrMagnitude < POSITION_TOLERANCE_SQR)
+            {
+                if (kvp.Value <= 1)
+                {
+                    keyToRemove = kvp.Key;
+                    found = true;
+                }
+                else
+                {
+                    _activePopupCountByPosition[kvp.Key] = kvp.Value - 1;
+                }
+                break;
+            }
+        }
+        
+        if (found)
+        {
+            _activePopupCountByPosition.Remove(keyToRemove);
+        }
     }
 }

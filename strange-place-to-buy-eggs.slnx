@@ -1,0 +1,4 @@
+﻿<Solution>
+  <Project Path="RobsonRocha.UnityCommon.Runtime.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+</Solution>

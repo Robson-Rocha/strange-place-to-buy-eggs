@@ -4,7 +4,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IFacingDirection
 {
     #region Movement & Animation Fields
     private const float MOVE_SPEED = 5f;
@@ -13,25 +13,17 @@ public class Player : MonoBehaviour
     private Rigidbody2D _rb;
     private AnimatorParameterBinder _parameterBinder;
     private Animator _animator;
-    private const string ANIM_PARAM_IS_IDLING = "IsIdling";
-    private const string ANIM_PARAM_IS_MOVING = "IsMoving";
-    private const string ANIM_PARAM_IS_RUNNING = "IsRunning";
-    private const string ANIM_PARAM_IS_FACING_UP = "IsFacingUp";
-    private const string ANIM_PARAM_IS_FACING_RIGHT = "IsFacingRight";
-    private const string ANIM_PARAM_IS_FACING_DOWN = "IsFacingDown";
-    private const string ANIM_PARAM_IS_FACING_LEFT = "IsFacingLeft";
-    private const string ANIM_PARAM_IS_KNOCKING_BACK = "IsKnockingBack";
-    private const string ANIM_PARAM_IS_ATTACKING = "IsAttacking";
     private float _lastHorizontal = 0;
     private float _lastVertical = -1; // Default to down-facing sprite
     private Vector2 _desiredVelocity;
     #endregion
 
     #region Attack Fields
-    [SerializeField] private BoxCollider2D DamagingCollider;
+    private const float ATTACK_DECELERATION_RATE = 8f; // Speed units per second to decelerate
     private bool _isAttacking = false;
     private Vector2 _attackDirection;
     private float _attackSpeed;
+    private float _currentAttackSpeed; // Current speed during attack (decreases over time)
     #endregion
 
     #region State Properties (Mutually Exclusive)
@@ -43,10 +35,10 @@ public class Player : MonoBehaviour
     #endregion
 
     #region Facing Direction Properties
-    private bool IsFacingUp => _lastVertical > 0;
-    private bool IsFacingDown => _lastVertical < 0;
-    private bool IsFacingRight => _lastHorizontal > 0;
-    private bool IsFacingLeft => _lastHorizontal < 0;
+    public bool IsFacingUp => _lastVertical > 0;
+    public bool IsFacingDown => _lastVertical < 0;
+    public bool IsFacingRight => _lastHorizontal > 0;
+    public bool IsFacingLeft => _lastHorizontal < 0;
     #endregion
 
     #region Interaction Fields
@@ -59,9 +51,10 @@ public class Player : MonoBehaviour
     private InventoryItem _coin;
     #endregion
 
-    #region Damageable, Damaging and Knockbackable Fields
+    #region Damageable, Knockbackable, Damaging and Recoilable Fields
     private Damageable _damageable;
     private Knockbackable _knockbackable;
+    private Recoilable _recoilable;
     #endregion
 
     #region Unity Messages
@@ -73,16 +66,15 @@ public class Player : MonoBehaviour
         this.TryInitComponent(ref _animator);
         if (this.TryInitComponent(ref _parameterBinder))
         {
-            _parameterBinder.Bind(ANIM_PARAM_IS_IDLING, () => IsIdling);
-            _parameterBinder.Bind(ANIM_PARAM_IS_MOVING, () => IsMoving);
-            _parameterBinder.Bind(ANIM_PARAM_IS_RUNNING, () => IsRunning);
-            _parameterBinder.Bind(ANIM_PARAM_IS_FACING_UP, () => IsFacingUp);
-            _parameterBinder.Bind(ANIM_PARAM_IS_FACING_RIGHT, () => IsFacingRight);
-            _parameterBinder.Bind(ANIM_PARAM_IS_FACING_DOWN, () => IsFacingDown);
-            _parameterBinder.Bind(ANIM_PARAM_IS_FACING_LEFT, () => IsFacingLeft);
-            _parameterBinder.Bind(ANIM_PARAM_IS_ATTACKING, () => IsAttacking);
+            _parameterBinder.Bind(Consts.ANIM_PARAM_IS_IDLING, () => IsIdling);
+            _parameterBinder.Bind(Consts.ANIM_PARAM_IS_MOVING, () => IsMoving);
+            _parameterBinder.Bind(Consts.ANIM_PARAM_IS_RUNNING, () => IsRunning);
+            _parameterBinder.Bind(Consts.ANIM_PARAM_IS_FACING_UP, () => IsFacingUp);
+            _parameterBinder.Bind(Consts.ANIM_PARAM_IS_FACING_RIGHT, () => IsFacingRight);
+            _parameterBinder.Bind(Consts.ANIM_PARAM_IS_FACING_DOWN, () => IsFacingDown);
+            _parameterBinder.Bind(Consts.ANIM_PARAM_IS_FACING_LEFT, () => IsFacingLeft);
+            _parameterBinder.Bind(Consts.ANIM_PARAM_IS_ATTACKING, () => IsAttacking);
         }
-        _rb.interpolation = RigidbodyInterpolation2D.Interpolate;
 
         // Interaction
         this.TryInitComponent(ref _interactablesDetector, t => t.Name == "InteractablesDetector");
@@ -99,16 +91,15 @@ public class Player : MonoBehaviour
         if(this.TryInitComponent(ref _damageable))
         {
             _damageable.CurrentHealthChanged += HandleDamageable_OnCurrentHealthChanged;
-            _damageable.TakingDamage += HandleDamageable_OnTakingDamage;
             _damageable.Death += HandleDamageable_OnDeath;
         }
-        if(this.TryInitComponent(ref _knockbackable))
+        if(this.TryInitComponent(ref _knockbackable) && _parameterBinder != null)
         {
-            if (_parameterBinder != null)
-            {
-                _parameterBinder.Bind(ANIM_PARAM_IS_KNOCKING_BACK, () => IsKnockingBack);
-            }
+            _parameterBinder.Bind(Consts.ANIM_PARAM_IS_KNOCKING_BACK, () => IsKnockingBack);
         }
+
+        // Recoil
+        this.TryInitComponent(ref _recoilable, isOptional: true);
     }
 
     private void Start()
@@ -123,13 +114,13 @@ public class Player : MonoBehaviour
     void Update()
     {
         HandleAttacking();
-        HandleMovement();
         HandleInteractions();
     }
 
     // FixedUpdate is called at a fixed interval and is independent of frame rate. Put physics code here.
     void FixedUpdate()
     {
+        HandleMovement();
         _rb.linearVelocity = _desiredVelocity;
     }
 
@@ -150,7 +141,6 @@ public class Player : MonoBehaviour
         if (_damageable != null)
         {
             _damageable.CurrentHealthChanged -= HandleDamageable_OnCurrentHealthChanged;
-            _damageable.TakingDamage -= HandleDamageable_OnTakingDamage;
             _damageable.Death -= HandleDamageable_OnDeath;
         }
 
@@ -173,10 +163,8 @@ public class Player : MonoBehaviour
             // Lock direction and speed at moment of attack
             _attackDirection = new Vector2(_lastHorizontal, _lastVertical).normalized;
             _attackSpeed = _desiredVelocity.magnitude * ATTACK_SPEED_MULTIPLIER;
+            _currentAttackSpeed = _attackSpeed; // Initialize current speed to starting speed
         }
-
-        // Enable the damaging collider only during the attack
-        DamagingCollider.enabled = _isAttacking;
     }
 
     /// <summary>
@@ -198,10 +186,12 @@ public class Player : MonoBehaviour
             _lastHorizontal = _knockbackable.FacingDirection.x;
             _lastVertical = _knockbackable.FacingDirection.y;
         }
-        // During attack, use locked direction and half speed
+        // During attack, use locked direction and gradually decreasing speed
         else if (IsAttacking)
         {
-            _desiredVelocity = _attackDirection * _attackSpeed;
+            // Gradually reduce the attack speed over time
+            _currentAttackSpeed = Mathf.Max(0, _currentAttackSpeed - ATTACK_DECELERATION_RATE * Time.deltaTime);
+            _desiredVelocity = _attackDirection * _currentAttackSpeed;
             // Keep facing the attack direction (don't update _lastHorizontal/_lastVertical)
         }
         // When not knocking back or attacking, use player input for movement and facing direction
@@ -216,13 +206,20 @@ public class Player : MonoBehaviour
         {
             _desiredVelocity = Vector2.zero;
         }
+
+        // Add recoil velocity (non-blocking, additive to any state)
+        if (_recoilable != null && _recoilable.IsRecoiling)
+        {
+            _desiredVelocity += _recoilable.GetCurrentVelocity();
+        }
     }
     #endregion
 
     #region Interaction Handling Methods
     private void HandleInteractions()
     {
-        if (_interactablesDetector.IsDetected &&
+        if (!_isAttacking && !IsKnockingBack && 
+            _interactablesDetector.IsDetected &&
             _interactablesDetector.Target.TryGetComponent(out Interactable interactable))
         {
             // Show the glyph to interact with the nearest interactable on the top of the head of the player
@@ -296,15 +293,6 @@ public class Player : MonoBehaviour
     void HandleDamageable_OnCurrentHealthChanged(object sender, Damageable.HealthChangedEventArgs e)
     {
         HUDManager.Instance.UpdateHud(_inventory, e.Health);
-    }
-
-    void HandleDamageable_OnTakingDamage(object sender, Damageable.TakingDamageEventArgs e)
-    {
-        // Start knockback effect
-        if (_knockbackable != null)
-        {
-            _knockbackable.StartKnockback(e.SourcePosition);
-        }
     }
 
     void HandleDamageable_OnDeath(object sender, EventArgs e)

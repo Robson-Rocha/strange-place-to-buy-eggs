@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3c9350a1df95d24e909d35dd21c7bdf, type: 3}
+  m_Name: dogica
+  m_EditorClassIdentifier: Assembly-CSharp::PixelFontData
+  PathToResources: PixelFonts/Dogica
+  SpriteAssetResourceNamePrefix: dogica
+  Characters: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*()-+_=~\xF8[]{};:'\"\\|,<.>/?\xC1\xC9\xCD\xD3\xDA\xE1\xE9\xED\xF3\xFA\xC7\xE7\xC3\xD5\xE3\xF5\xC2\xCA\xCE\xD4\xDB\xE2\xEA\xEE\xF4\xFB\xC4\xCB\xCF\xD6\xDC\xE4\xEB\xEF\xF6\xFC\xC0\xC8\xCC\xD2\xD9\xE0\xE8\xEC\xF2\xF9\xA1\u2018\u2019\xD7\xC5\xE5\xAB\xBB\xD1\xF1\xBF`\xB4\xDF\xE6\xA9"
+  PixelsPerCharacter: 8

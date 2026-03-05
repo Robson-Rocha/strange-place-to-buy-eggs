@@ -1,14 +1,61 @@
 :root {
 }
 
-#CoinsLabel {
-    color: white;
-    text-shadow: 0 0 10px rgb(0, 0, 0);
-}
-
 .heart-shake {
-    translate: 5px 0;
+    translate: 1.5625% 0;
     transition-property: translate;
     transition-duration: 0.1s;
     transition-timing-function: ease-in-out;
+}
+
+.heart-icon {
+    width: 12px;
+    height: 12px;
+}
+
+#HeartsPanel {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    right: auto;
+    width: 120px;
+    height: 24px;
+    flex-grow: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0);
+    -unity-background-scale-mode: scale-to-fit;
+    -unity-text-align: upper-left;
+}
+
+#CoinsPanel {
+    position: absolute;
+    top: 2px;
+    right: 0px;
+    width: 55px;
+    padding: 0px;
+    margin: 0px;
+    flex-grow: 0;
+    flex-direction: row;
+    background-color: rgba(255, 255, 255, 0);
+    -unity-background-scale-mode: scale-to-fit;
+    -unity-text-align: upper-left;
+}
+
+#CoinsLabel {
+    color: white;
+    font-size: 10px;
+    height: 16px;
+    margin: 0px;
+    font-size: 16px; 
+    -unity-text-align: upper-left; 
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 1); 
+    top: -1px;
+}
+
+.coin-icon {
+    width: 16px;
+    height: 16px;
+    background-color: rgba(0, 0, 0, 0);
 }

@@ -4,19 +4,21 @@ using UnityEngine;
 /// <summary>
 /// Component that handles knockback logic for characters.
 /// Can be used on players, enemies, or any entity that can be knocked back.
+/// Automatically subscribes to Damageable.TakingDamage if a Damageable component is present.
 /// </summary>
 public class Knockbackable : MonoBehaviour
 {
     [Header("Knockback Settings")]
     [Tooltip("Default force applied during knockback")]
-    [SerializeField] private float _defaultForce = 8f;
+    [SerializeField] private float DefaultForce = 8f;
 
     [Tooltip("Default duration of the knockback effect in seconds")]
-    [SerializeField] private float _defaultDuration = 0.3f;
+    [SerializeField] private float DefaultDuration = 0.3f;
 
     [Tooltip("Easing curve for knockback velocity (typically ease-out: starts fast, slows down)")]
-    [SerializeField] private AnimationCurve _easingCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
+    [SerializeField] private AnimationCurve EasingCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
 
+    private Damageable _damageable;
     private Vector2 _knockbackDirection;
     private Vector2 _facingDirection;
     private float _currentForce;
@@ -50,8 +52,8 @@ public class Knockbackable : MonoBehaviour
         // Facing direction is towards the source (the attacker)
         _facingDirection = -_knockbackDirection;
 
-        _currentForce = force ?? _defaultForce;
-        _currentDuration = duration ?? _defaultDuration;
+        _currentForce = force ?? DefaultForce;
+        _currentDuration = duration ?? DefaultDuration;
         _elapsedTime = 0f;
         _isActive = true;
     }
@@ -79,10 +81,19 @@ public class Knockbackable : MonoBehaviour
         float normalizedTime = Mathf.Clamp01(_elapsedTime / _currentDuration);
 
         // Evaluate the easing curve to get the current force multiplier
-        float easedMultiplier = _easingCurve.Evaluate(normalizedTime);
+        float easedMultiplier = EasingCurve.Evaluate(normalizedTime);
 
         // Return the knockback velocity
-        return _knockbackDirection * _currentForce * easedMultiplier;
+        return _currentForce * easedMultiplier * _knockbackDirection;
+    }
+
+    private void Awake()
+    {
+        // Auto-wire to Damageable if present
+        if (this.TryInitComponent(ref _damageable, isOptional: true))
+        {
+            _damageable.TakingDamage += HandleDamageable_OnTakingDamage;
+        }
     }
 
     private void Update()
@@ -96,5 +107,18 @@ public class Knockbackable : MonoBehaviour
         {
             StopKnockback();
         }
+    }
+
+    private void OnDestroy()
+    {
+        if (_damageable != null)
+        {
+            _damageable.TakingDamage -= HandleDamageable_OnTakingDamage;
+        }
+    }
+
+    private void HandleDamageable_OnTakingDamage(object sender, Damageable.TakingDamageEventArgs e)
+    {
+        StartKnockback(e.SourcePosition);
     }
 }

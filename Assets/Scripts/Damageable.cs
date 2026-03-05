@@ -3,7 +3,6 @@ using System;
 using System.ComponentModel;
 using UnityEngine;
 
-[RequireComponent(typeof(Detectable))]
 public class Damageable : MonoBehaviour
 {
     public class TakingDamageEventArgs : CancelEventArgs
@@ -50,15 +49,14 @@ public class Damageable : MonoBehaviour
 
     private void Awake()
     {
-        Detectable detectable = null;
-        if (this.TryInitComponent(ref detectable))
+        if (TryGetComponent(out Detectable detectable))
         {
             detectable.Names.AddIfNotExists(nameof(Damageable));
         }
     }
 
     void Update() =>
-        _invulnerabilityTimer = _invulnerabilityTimer.DecrementTimer();
+        /*_invulnerabilityTimer = */_invulnerabilityTimer.DecrementTimer();
 
     public bool CanTakeDamage() =>
         _invulnerabilityTimer.IsNearZero();

@@ -1,21 +1,20 @@
 using RobsonRocha.UnityCommon;
+using System;
 using System.Collections;
-using TMPro;
 using UnityEngine;
 
-[RequireComponent(typeof(CanvasGroup))]
 [DefaultExecutionOrder(-85)]
+[RequireComponent(typeof(PixelText))]
 public class PickupPopupController : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI PromptText;
-    [SerializeField] private CanvasGroup CanvasGroup;
+    private PixelText _promptText;
     [SerializeField] private AnimationCurve MovementEasing = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
     private Coroutine _animationRoutine;
 
     private void Awake()
     {
-        CanvasGroup = GetComponent<CanvasGroup>();
+        _promptText = GetComponent<PixelText>();
     }
 
     public void Show(
@@ -24,27 +23,23 @@ public class PickupPopupController : MonoBehaviour
         Color color = default, 
         Direction direction = Direction.Up, 
         float speed = 0.5f, 
-        float duration = 2f)
+        float duration = 2f,
+        Action onFinish = null)
     {
-        PromptText.text = text;
-
-        if (color != default)
-        {
-            PromptText.color = color;
-        }
-
         if (_animationRoutine != null)
         {
             StopCoroutine(_animationRoutine);
         }
 
         transform.position = worldPosition;
-        CanvasGroup.alpha = 0f;
         gameObject.SetActive(true);
-        _animationRoutine = StartCoroutine(AnimationRoutine(direction.ToVector2(), speed, duration));
+        
+        _promptText.Render(text, textColor: color != default ? color : null, alpha: 0f);
+        
+        _animationRoutine = StartCoroutine(AnimationRoutine(direction.ToVector2(), speed, duration, onFinish));
     }
 
-    private IEnumerator AnimationRoutine(Vector3 moveDirection, float speed, float duration)
+    private IEnumerator AnimationRoutine(Vector3 moveDirection, float speed, float duration, Action onFinish)
     {
         Vector3 startPosition = transform.position;
         float totalDistance = speed * duration;
@@ -58,25 +53,26 @@ public class PickupPopupController : MonoBehaviour
             float t = elapsed / duration;
 
             float easedProgress = MovementEasing.Evaluate(t);
-            transform.position = startPosition + moveDirection * totalDistance * easedProgress;
+            transform.position = startPosition + easedProgress * totalDistance * moveDirection;
 
             if (elapsed < fadeInDuration)
             {
-                CanvasGroup.alpha = Mathf.Lerp(0f, 1f, elapsed / fadeInDuration);
+                _promptText.SetAlpha(Mathf.Lerp(0f, 1f, elapsed / fadeInDuration));
             }
             else if (elapsed >= fadeOutStartTime)
             {
                 float fadeProgress = (elapsed - fadeOutStartTime) / (duration - fadeOutStartTime);
-                CanvasGroup.alpha = Mathf.Lerp(1f, 0f, fadeProgress);
+                _promptText.SetAlpha(Mathf.Lerp(1f, 0f, fadeProgress));
             }
             else
             {
-                CanvasGroup.alpha = 1f;
+                _promptText.SetAlpha(1f);
             }
 
             yield return null;
         }
 
+        onFinish?.Invoke();
         Destroy(gameObject);
     }
 }

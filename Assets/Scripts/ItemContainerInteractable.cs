@@ -38,7 +38,7 @@ public class ItemContainerInteractable : Interactable
     
     private void Update()
     {
-        _interactionCooldownTimer = _interactionCooldownTimer.DecrementTimer();
+        /*_interactionCooldownTimer = */_interactionCooldownTimer.DecrementTimer();
     }
 
     public override string InteractionVerb => $"Open {containerName}";

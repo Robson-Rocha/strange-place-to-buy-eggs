@@ -1,32 +1,26 @@
 using RobsonRocha.UnityCommon;
 using System;
 using System.Collections;
-using TMPro;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
-[RequireComponent(typeof(CanvasGroup))]
+[RequireComponent(typeof(PixelText))]
 [DefaultExecutionOrder(-85)]
 public class InteractionPromptController : MonoBehaviour
 {
-    [SerializeField] private Image GlyphImage;
-    [SerializeField] private TextMeshProUGUI PromptText;
-    [SerializeField] private CanvasGroup CanvasGroup;
     [SerializeField] private float FadeDuration = 0.05f;
 
     private Coroutine _fadeRoutine;
+    private PixelText PromptText;
 
     private void Awake()
     {
-        CanvasGroup = GetComponent<CanvasGroup>();
+        PromptText = GetComponent<PixelText>();
     }
 
     public void SetPrompt(Sprite glyph, string text)
     {
-        GlyphImage.gameObject.SetActive(glyph != null);
-        GlyphImage.sprite = glyph;
-        PromptText.gameObject.SetActive(!string.IsNullOrWhiteSpace(text));
-        PromptText.text = text;
+        PromptText.Render(text, additionalGlyphs: new List<Sprite> { glyph });
     }
 
     public void Show(Vector3 worldPosition)
@@ -63,12 +57,12 @@ public class InteractionPromptController : MonoBehaviour
 
     private IEnumerator FadeRoutine(float targetAlpha, Action onHidden = null)
     {
-        float start = CanvasGroup.alpha;
+        float start = PromptText.Alpha;
         float time = 0f;
         while (time < FadeDuration)
         {
             time += Time.deltaTime;
-            CanvasGroup.alpha = Mathf.Lerp(start, targetAlpha, time / FadeDuration);
+            PromptText.SetAlpha(Mathf.Lerp(start, targetAlpha, time / FadeDuration));
             yield return null;
         }
         Kill(targetAlpha, onHidden);
@@ -76,7 +70,7 @@ public class InteractionPromptController : MonoBehaviour
 
     private void Kill(float targetAlpha, Action onHidden)
     {
-        CanvasGroup.alpha = targetAlpha;
+        PromptText.SetAlpha(targetAlpha);
         if (targetAlpha.IsNearZero())
         {
             gameObject.SetActive(false);

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 5933769240450765371}
   - component: {fileID: 1692703227409777970}
   - component: {fileID: 4518022928213504971}
+  - component: {fileID: -5326420258244420480}
   m_Layer: 0
   m_Name: SpikeTrap
   m_TagString: Untagged
@@ -194,3 +195,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: RobsonRocha.UnityCommon.Runtime::RobsonRocha.UnityCommon.YSortable
   _yOffset: 0.5
+--- !u!114 &-5326420258244420480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2295029331646255909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8585a065e5fe5974ab939fad54af8916, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: RobsonRocha.UnityCommon.Runtime::RobsonRocha.UnityCommon.Detectable
+  Names:
+  - Damaging
+  Undetectable: 0
