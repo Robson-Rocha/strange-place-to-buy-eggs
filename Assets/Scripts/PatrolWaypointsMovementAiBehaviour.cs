@@ -34,7 +34,7 @@ public enum PatrolRecoveryStrategy
 /// </summary>
 [RequireComponent(typeof(Moveable))]
 [DefaultExecutionOrder(10)]
-public class PatrolWaypointsMovementAiBehaviour : MonoBehaviour, IAiBehaviour
+public class PatrolWaypointsMovementAiBehaviour : AiBehaviourBase
 {
     private const float MINIMUM_ARRIVAL_THRESHOLD = 0.01f;
     private const float GIZMO_ARROW_LENGTH = 0.2f;
@@ -56,6 +56,8 @@ public class PatrolWaypointsMovementAiBehaviour : MonoBehaviour, IAiBehaviour
     [SerializeField][HideInInspector] private Color WaypointsGizmoColor = default;
 
     private Moveable _moveable;
+    private IPathfinder _pathfinder;
+    private IPathfinder _simplePathfinder;
 
     // Pattern state
     private int _currentWaypointIndex;
@@ -75,13 +77,11 @@ public class PatrolWaypointsMovementAiBehaviour : MonoBehaviour, IAiBehaviour
     private Vector2 _lastKnownPosition;
 
     #region AI Behaviour Implementation
-    public int Priority => BehaviourPriority;
+    public override int Priority => BehaviourPriority;
 
-    public bool CanAct { get; private set; }
+    public override bool IsBlocking => false;
 
-    public bool IsBlocking => false;
-
-    public void HeartBeat()
+    public override void HeartBeat()
     {
         if (!IsDisabled && _isPaused)
         {
@@ -94,16 +94,31 @@ public class PatrolWaypointsMovementAiBehaviour : MonoBehaviour, IAiBehaviour
         }
     }
 
-    public void Sense()
+    public override void Sense()
     {
         CanAct = !IsDisabled && !_isPaused && HasValidWaypoints();
     }
     #endregion
 
     #region Unity Messages
-    private void Awake()
+    public override void Awake()
     {
+        base.Awake();
         this.TryInitComponent(ref _moveable);
+        _pathfinder = PathfinderManager.Instance;
+        _simplePathfinder = SimplePathfinderManager.Instance;
+        if (_pathfinder == null)
+        {
+            Debug.LogError($"{nameof(PatrolWaypointsMovementAiBehaviour)}: {nameof(PathfinderManager)} not found in scene!", this);
+            IsDisabled = false;
+            return;
+        }
+        if (_simplePathfinder == null)
+        {
+            Debug.LogError($"{nameof(PatrolWaypointsMovementAiBehaviour)}: {nameof(SimplePathfinderManager)} not found in scene!", this);
+            IsDisabled = false;
+            return;
+        }
         HandleInitializeWaypointsGizmoColor();
         HandleSyncWaypointMetadata();
     }
@@ -255,25 +270,29 @@ public class PatrolWaypointsMovementAiBehaviour : MonoBehaviour, IAiBehaviour
     private void CalculateRouteToCurrentWaypoint()
     {
         if (!HasValidWaypoints())
+        {
+            _currentRoute = null;
             return;
+        }
 
         var waypoint = Waypoints[_currentWaypointIndex];
         if (!waypoint.IsValid)
+        {
+            _currentRoute = null;
             return;
+        }
+
+        IPathfinder pathfinder = waypoint.UseSimplePathfinding ? _simplePathfinder : _pathfinder;
+        if (pathfinder == null)
+        {
+            _currentRoute = null;
+            return;
+        }
 
         Vector2 currentPos = transform.position;
         Vector2 targetPos = waypoint.WorldPosition.Value;
 
-        if (PathfinderManager.Instance != null)
-        {
-            _currentRoute = PathfinderManager.Instance.GetRouteToTarget(currentPos, targetPos);
-        }
-        else
-        {
-            // Fallback: direct path
-            _currentRoute = new Vector2[] { targetPos };
-        }
-
+        _currentRoute = pathfinder.GetRouteToTarget(currentPos, targetPos, ignoreOwner: transform);
         _currentRouteIndex = 0;
     }
 
@@ -357,6 +376,7 @@ public class PatrolWaypointsMovementAiBehaviour : MonoBehaviour, IAiBehaviour
     {
         var candidatePositions = new List<Vector2>();
         var candidateIndices = new List<int>();
+        bool useSimplePathfinding = false;
 
         for (int i = 0; i < Waypoints.Count; i++)
         {
@@ -368,6 +388,12 @@ public class PatrolWaypointsMovementAiBehaviour : MonoBehaviour, IAiBehaviour
 
             candidatePositions.Add(Waypoints[i].WorldPosition.Value);
             candidateIndices.Add(i);
+
+            // Use simple pathfinding if the current target waypoint uses it
+            if (i == _currentWaypointIndex)
+            {
+                useSimplePathfinding = Waypoints[i].UseSimplePathfinding;
+            }
         }
 
         // If no visited waypoints, fall back to Continue strategy
@@ -377,47 +403,28 @@ public class PatrolWaypointsMovementAiBehaviour : MonoBehaviour, IAiBehaviour
             return;
         }
 
-        if (PathfinderManager.Instance != null)
+        IPathfinder pathfinder = useSimplePathfinding ? _simplePathfinder : _pathfinder;
+        if (pathfinder == null)
+            return;
+
+        Vector2 currentPos = transform.position;
+        Vector2[] route = pathfinder.GetRouteToNearestTarget(currentPos, candidatePositions, ignoreOwner: transform);
+
+        if (route.Length > 0)
         {
-            Vector2 currentPos = transform.position;
-            Vector2[] route = PathfinderManager.Instance.GetRouteToNearestTarget(currentPos, candidatePositions);
-
-            if (route.Length > 0)
-            {
-                // Find which waypoint index this route leads to
-                Vector2 targetPos = route[route.Length - 1];
-                for (int i = 0; i < candidatePositions.Count; i++)
-                {
-                    if ((candidatePositions[i] - targetPos).sqrMagnitude < 0.001f)
-                    {
-                        _currentWaypointIndex = candidateIndices[i];
-                        break;
-                    }
-                }
-
-                _currentRoute = route;
-                _currentRouteIndex = 0;
-            }
-        }
-        else
-        {
-            // No pathfinder, find nearest manually
-            Vector2 currentPos = transform.position;
-            float nearestDistSqr = float.MaxValue;
-            int nearestIndex = _currentWaypointIndex;
-
+            // Find which waypoint index this route leads to
+            Vector2 targetPos = route[route.Length - 1];
             for (int i = 0; i < candidatePositions.Count; i++)
             {
-                float distSqr = (currentPos - candidatePositions[i]).sqrMagnitude;
-                if (distSqr < nearestDistSqr)
+                if ((candidatePositions[i] - targetPos).sqrMagnitude < 0.001f)
                 {
-                    nearestDistSqr = distSqr;
-                    nearestIndex = candidateIndices[i];
+                    _currentWaypointIndex = candidateIndices[i];
+                    break;
                 }
             }
 
-            _currentWaypointIndex = nearestIndex;
-            CalculateRouteToCurrentWaypoint();
+            _currentRoute = route;
+            _currentRouteIndex = 0;
         }
     }
 

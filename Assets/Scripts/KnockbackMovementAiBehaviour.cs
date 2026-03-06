@@ -8,7 +8,7 @@ using UnityEngine;
 [RequireComponent(typeof(Moveable))]
 [RequireComponent(typeof(Knockbackable))]
 [DefaultExecutionOrder(10)]
-public class KnockbackMovementAiBehaviour : MonoBehaviour, IAiBehaviour
+public class KnockbackMovementAiBehaviour : AiBehaviourBase
 {
     [Header("Behaviour Settings")]
     [SerializeField][Range(-100, 100)] private int BehaviourPriority = 100;
@@ -18,13 +18,12 @@ public class KnockbackMovementAiBehaviour : MonoBehaviour, IAiBehaviour
     private Knockbackable _knockbackable;
 
     #region AI Behaviour Implementation
-    public int Priority => BehaviourPriority;
+    public override int Priority => BehaviourPriority;
 
-    public bool CanAct { get; private set; }
+    public override bool CanAct { get; protected set; }
 
-    public bool IsBlocking => true;
-
-    public void Sense()
+    public override bool IsBlocking => true;
+    public override void Sense()
     {
         CanAct = !IsDisabled &&
                 _knockbackable != null &&
@@ -33,8 +32,9 @@ public class KnockbackMovementAiBehaviour : MonoBehaviour, IAiBehaviour
     #endregion
 
     #region Unity Messages
-    private void Awake()
+    public override void Awake()
     {
+        base.Awake();
         this.TryInitComponent(ref _moveable);
         this.TryInitComponent(ref _knockbackable);
     }

@@ -16,6 +16,8 @@ public class PatrolWaypoint
     [Tooltip("Maximum duration to pause at this waypoint before continuing.")]
     [Min(0f)] public float PauseDurationMax = 0f;
 
+    public bool UseSimplePathfinding = false;
+
     [NonSerialized] public int RuntimeIndex = -1;
 
     /// <summary>

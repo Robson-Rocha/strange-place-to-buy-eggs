@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+[DefaultExecutionOrder(-10)]
 public class SimplePrefabsManager : SingletonMonoBehaviour<SimplePrefabsManager>
 {
     [Serializable]

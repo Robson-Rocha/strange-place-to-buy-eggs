@@ -3,7 +3,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Moveable))]
 [DefaultExecutionOrder(10)]
-public class RandomMovementAiBehaviour : MonoBehaviour, IAiBehaviour
+public class RandomMovementAiBehaviour : AiBehaviourBase
 {
     [Header("Behaviour Settings")]
     [SerializeField][Range(-100, 100)] private int BehaviourPriority = -100;
@@ -29,16 +29,17 @@ public class RandomMovementAiBehaviour : MonoBehaviour, IAiBehaviour
     private bool _isCollidingAhead;
 
     #region AI Behaviour Implementation
-    public int Priority => BehaviourPriority;
+    public override int Priority => BehaviourPriority;
 
-    public bool CanAct  => !IsDisabled;
+    public override bool CanAct  => !IsDisabled;
 
-    public bool IsBlocking => false;
+    public override bool IsBlocking => false;
     #endregion
 
     #region Unity Messages
-    private void Awake()
+    public override void Awake()
     {
+        base.Awake();
         this.TryInitComponent(ref _moveable);
         this.TryInitComponent(ref _damageableDetector, isOptional: true);
     }
@@ -89,7 +90,7 @@ public class RandomMovementAiBehaviour : MonoBehaviour, IAiBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        if (_isMoving && _currentDirection.sqrMagnitude > 0.01f)
+        if (!IsDisabled && _isMoving && _currentDirection.sqrMagnitude > 0.01f)
         {
             Gizmos.color = Color.yellow;
             Gizmos.DrawRay(transform.position, _currentDirection);
