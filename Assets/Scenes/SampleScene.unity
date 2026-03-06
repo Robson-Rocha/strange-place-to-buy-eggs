@@ -817,30 +817,39 @@ MonoBehaviour:
   - Position: {fileID: 467418891}
     PauseDurationMin: 10
     PauseDurationMax: 10
+    UseSimplePathfinding: 0
   - Position: {fileID: 738240945}
     PauseDurationMin: 0.125
     PauseDurationMax: 0.5
+    UseSimplePathfinding: 0
   - Position: {fileID: 643368140}
     PauseDurationMin: 0.125
     PauseDurationMax: 0.5
+    UseSimplePathfinding: 0
   - Position: {fileID: 1575425629}
     PauseDurationMin: 0.125
     PauseDurationMax: 0.5
+    UseSimplePathfinding: 0
   - Position: {fileID: 2074708064}
     PauseDurationMin: 0.125
     PauseDurationMax: 0.5
+    UseSimplePathfinding: 0
   - Position: {fileID: 545606342}
     PauseDurationMin: 0.125
     PauseDurationMax: 0.5
+    UseSimplePathfinding: 0
   - Position: {fileID: 1843578083}
     PauseDurationMin: 0.125
     PauseDurationMax: 0.5
+    UseSimplePathfinding: 0
   - Position: {fileID: 660615435}
     PauseDurationMin: 0.125
     PauseDurationMax: 0.5
+    UseSimplePathfinding: 1
   - Position: {fileID: 138049965}
     PauseDurationMin: 1
     PauseDurationMax: 3
+    UseSimplePathfinding: 0
   ArrivalThreshold: 0.1
   RunToWaypoints: 0
   WaypointsGizmoColor: {r: 0.52968746, g: 0.19999999, b: 1, a: 1}
@@ -68772,7 +68781,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5056289531217731430, guid: 39f8af8398618a742ae0e4659d5f81d3, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -3
+      value: -0.5
       objectReference: {fileID: 0}
     - target: {fileID: 5056289531217731430, guid: 39f8af8398618a742ae0e4659d5f81d3, type: 3}
       propertyPath: m_LocalPosition.z
@@ -68830,11 +68839,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5056289531217731430, guid: 39f8af8398618a742ae0e4659d5f81d3, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 7
+      value: 7.5
       objectReference: {fileID: 0}
     - target: {fileID: 5056289531217731430, guid: 39f8af8398618a742ae0e4659d5f81d3, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -6
+      value: -5.5
       objectReference: {fileID: 0}
     - target: {fileID: 5056289531217731430, guid: 39f8af8398618a742ae0e4659d5f81d3, type: 3}
       propertyPath: m_LocalPosition.z
@@ -69101,6 +69110,7 @@ GameObject:
   - component: {fileID: 2066704596}
   - component: {fileID: 2066704597}
   - component: {fileID: 2066704598}
+  - component: {fileID: 2066704599}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -69293,7 +69303,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d63264655a74a524b8c736c03848c523, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PathfinderManager
-  Tilemaps: []
+  Tilemaps:
+  - {fileID: 1473600256}
+  - {fileID: 562249004}
+  ObstacleCacheLifetime: 5
+  DistanceFromDamagings: 2
+  GridSubdivision: 2
+  WaypointAlignment: 1
+  ShowPathGizmos: 1
+--- !u!114 &2066704599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2066704587}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30d793e07d430f746b3717df7801c486, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SimplePathfinderManager
 --- !u!1 &2070286188
 GameObject:
   m_ObjectHideFlags: 0

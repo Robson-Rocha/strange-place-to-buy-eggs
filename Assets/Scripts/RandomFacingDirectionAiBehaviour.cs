@@ -4,7 +4,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Moveable))]
 [DefaultExecutionOrder(10)]
-public class RandomFacingDirectionAiBehaviour : MonoBehaviour, IAiBehaviour
+public class RandomFacingDirectionAiBehaviour : AiBehaviourBase
 {
     [Header("Behaviour Settings")]
     [SerializeField][Range(-100, 100)] private int BehaviourPriority = -100;
@@ -15,21 +15,21 @@ public class RandomFacingDirectionAiBehaviour : MonoBehaviour, IAiBehaviour
     [SerializeField] private float ChangeDirectionIntervalMax = 5f;
     [SerializeField] private Direction AllowedFacingDirections = Direction.Down;
 
-    public int Priority => BehaviourPriority;
+    public override int Priority => BehaviourPriority;
 
-    public bool CanAct { get; private set; }
+    public override bool CanAct { get; protected set; }
 
-    public bool IsBlocking => false;
-
-    public void Sense() =>
+    public override bool IsBlocking => false;
+    public override void Sense() =>
         CanAct = !IsDisabled && AllowedFacingDirections != Direction.None; 
 
     private float _directionChangeTimer;
     
     private Moveable _moveable;
 
-    void Awake()
+    public override void Awake()
     {
+        base.Awake();
         this.TryInitComponent(ref _moveable);
     }
 

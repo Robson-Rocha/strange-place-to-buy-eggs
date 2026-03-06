@@ -14,11 +14,6 @@ public class PickupPopupManager : SingletonMonoBehaviour<PickupPopupManager>
     // Cache list to avoid allocating during iteration
     private readonly List<Vector3> _keysCache = new();
 
-    protected override void Awake()
-    {
-        base.CanAwake();
-    }
-
     public void ShowPopup(
         string text, Vector3 worldPosition,
         Color color = default, Direction direction = Direction.Up,
