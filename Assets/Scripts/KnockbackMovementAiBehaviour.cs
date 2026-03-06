@@ -8,24 +8,27 @@ using UnityEngine;
 [RequireComponent(typeof(Moveable))]
 [RequireComponent(typeof(Knockbackable))]
 [DefaultExecutionOrder(10)]
-public class KnockbackMovementBehaviour : MonoBehaviour, IBehaviour
+public class KnockbackMovementAiBehaviour : MonoBehaviour, IAiBehaviour
 {
     [Header("Behaviour Settings")]
-    [SerializeField] private float BehaviourPriority = 100f;
+    [SerializeField][Range(-100, 100)] private int BehaviourPriority = 100;
+    [SerializeField] private bool IsDisabled = false;
 
     private Moveable _moveable;
     private Knockbackable _knockbackable;
 
-    #region IBehaviour Implementation
-    public float Priority => BehaviourPriority;
+    #region AI Behaviour Implementation
+    public int Priority => BehaviourPriority;
 
-    public bool CanAct => _knockbackable != null && _knockbackable.IsKnockingBack;
+    public bool CanAct { get; private set; }
 
-    public bool IsBlocking => CanAct;
+    public bool IsBlocking => true;
 
     public void Sense()
     {
-        // Nothing to sense - knockback state is managed by Knockbackable
+        CanAct = !IsDisabled &&
+                _knockbackable != null &&
+                _knockbackable.IsKnockingBack;
     }
     #endregion
 

@@ -7,16 +7,18 @@ public class Damageable : MonoBehaviour
 {
     public class TakingDamageEventArgs : CancelEventArgs
     {
-        public TakingDamageEventArgs(Health health, int damage, Vector3 sourcePosition)
+        public TakingDamageEventArgs(Health health, int damage, Vector3 sourcePosition, string kind)
         {
             Health = health;
             Damage = damage;
             SourcePosition = sourcePosition;
+            Kind = kind;
         }
 
         public virtual Health Health { get; }
         public virtual int Damage { get; set; }
         public virtual Vector3 SourcePosition { get; }
+        public virtual string Kind { get; }
     }
 
     public class HealingEventArgs : CancelEventArgs
@@ -61,7 +63,7 @@ public class Damageable : MonoBehaviour
     public bool CanTakeDamage() =>
         _invulnerabilityTimer.IsNearZero();
 
-    public void TakeDamage(int damage, Vector3 sourcePosition)
+    public void TakeDamage(int damage, Vector3 sourcePosition, string kind)
     {
         if (damage <= 0 || Health == null || !CanTakeDamage())
             return;
@@ -69,7 +71,7 @@ public class Damageable : MonoBehaviour
         if (TakingDamage != null)
         {
             TakingDamageEventArgs takingDamageEventArgs = 
-                OnTakingDamage(Health, damage, sourcePosition);
+                OnTakingDamage(Health, damage, sourcePosition, kind);
 
             if (takingDamageEventArgs.Cancel)
                 return;
@@ -110,9 +112,9 @@ public class Damageable : MonoBehaviour
     }
 
     protected virtual TakingDamageEventArgs OnTakingDamage(
-        Health health, int damage, Vector3 sourcePosition)
+        Health health, int damage, Vector3 sourcePosition, string kind)
     {
-        TakingDamageEventArgs eventArgs = new(Health, damage, sourcePosition);
+        TakingDamageEventArgs eventArgs = new(Health, damage, sourcePosition, kind);
         TakingDamage?.Invoke(this, eventArgs);
         return eventArgs;
     }

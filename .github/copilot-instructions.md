@@ -13,3 +13,6 @@
 
 ## Timer Management
 - All timers should always decrement to zero, and for consistency, use the extension method DecrementTimer. The correct usage is: _timer.DecrementTimer();
+
+## AI Behavior Management
+- 'IsDisabled' is only a designer/editor toggle; runtime behavior activation is controlled each frame by `IAiBehaviourExtensions.UpdateActiveAiBehaviour` via `IAiBehaviour.Enable` based on `CanAct` and `Priority`.

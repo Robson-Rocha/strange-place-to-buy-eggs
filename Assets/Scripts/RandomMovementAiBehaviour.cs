@@ -3,8 +3,12 @@ using UnityEngine;
 
 [RequireComponent(typeof(Moveable))]
 [DefaultExecutionOrder(10)]
-public class RandomMovementBehaviour : MonoBehaviour, IBehaviour
+public class RandomMovementAiBehaviour : MonoBehaviour, IAiBehaviour
 {
+    [Header("Behaviour Settings")]
+    [SerializeField][Range(-100, 100)] private int BehaviourPriority = -100;
+    [SerializeField] private bool IsDisabled = false;
+
     [Header("Movement Settings")]
     [SerializeField] private float MinMoveDuration = 0.5f;
     [SerializeField] private float MaxMoveDuration = 2f;
@@ -24,17 +28,12 @@ public class RandomMovementBehaviour : MonoBehaviour, IBehaviour
     private Vector2 _collisionNormal;
     private bool _isCollidingAhead;
 
-    #region IBehaviour Implementation
-    public float Priority => 0f;
+    #region AI Behaviour Implementation
+    public int Priority => BehaviourPriority;
 
-    public bool CanAct  => true;
+    public bool CanAct  => !IsDisabled;
 
     public bool IsBlocking => false;
-
-    public void Sense()
-    {
-        // nothing to sense, this behavior is purely random movement
-    }
     #endregion
 
     #region Unity Messages

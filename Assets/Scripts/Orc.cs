@@ -8,9 +8,9 @@ public class Orc : MonoBehaviour
     private Moveable _moveable;
     private Knockbackable _knockbackable;
 
-    private IBehaviour[] _behaviours;
-    private IBehaviour _currentBehaviour;
-    private IBehaviour CurrentBehaviour
+    private IAiBehaviour[] _behaviours;
+    private IAiBehaviour _currentBehaviour;
+    private IAiBehaviour CurrentBehaviour
     {
         get => _currentBehaviour;
         set
@@ -35,15 +35,31 @@ public class Orc : MonoBehaviour
             _animatorParameterBinder.Bind(Consts.ANIM_PARAM_IS_FACING_RIGHT, () => _moveable.IsFacingRight);
             _animatorParameterBinder.Bind(Consts.ANIM_PARAM_IS_KNOCKING_BACK, () => _knockbackable.IsKnockingBack);
         }
-        _behaviours = GetComponents<IBehaviour>();
+        _behaviours = GetComponents<IAiBehaviour>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (CurrentBehaviour == null || !(CurrentBehaviour.CanAct && CurrentBehaviour.IsBlocking))
-        {
-            CurrentBehaviour = _behaviours.UpdateActiveBehaviour();
-        }        
+        HandleAiBehaviours();
     }
+
+    public void HandleAiBehaviours()
+    {
+        foreach (var behaviour in _behaviours) {
+            behaviour.HeartBeat();
+        }
+
+        if (CurrentBehaviour != null)
+        {
+            CurrentBehaviour.Sense();
+            if (CurrentBehaviour.IsBlocking && CurrentBehaviour.CanAct)
+            {
+                return;
+            }
+        }
+
+        CurrentBehaviour = _behaviours.UpdateActiveAiBehaviour(skip: CurrentBehaviour);
+    }
+
 }
