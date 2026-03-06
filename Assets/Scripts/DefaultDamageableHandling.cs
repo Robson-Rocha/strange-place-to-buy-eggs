@@ -1,10 +1,22 @@
 ﻿using RobsonRocha.UnityCommon;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static DefaultDamageableHandling;
+using static UnityEngine.InputManagerEntry;
 
 [RequireComponent(typeof(Damageable))]
 public class DefaultDamageableHandling : MonoBehaviour
 {
+    [Serializable]
+    public class DamageReceivingCollider
+    {
+        public Collider2D Collider;
+        public string KindOfDamageReceived = null;
+    }
+
+    [SerializeField] private DamageReceivingCollider[] DamageReceivingColliders;
+
     [SerializeField] private Transform InteractionPromptTransform;
     [SerializeField] private SoundEffect DamageTakenSoundEffect;
     [SerializeField] private SoundEffect HealingSoundEffect;
@@ -29,19 +41,20 @@ public class DefaultDamageableHandling : MonoBehaviour
         this.TryInitComponent(ref _flashEffect, isOptional: true);
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D damagingCollider)
     {
         // Cache the Damaging component when entering
-        if (collision.TryGetComponent(out Damaging damaging))
+        if (damagingCollider.TryGetComponent(out Damaging damaging) &&
+            IsDamagingAnyReceivingColliders(damagingCollider, damaging.KindOfDamageCaused))
         {
             _overlappingDamagingSources.Add(damaging);
         }
     }
 
-    private void OnTriggerExit2D(Collider2D collision)
+    private void OnTriggerExit2D(Collider2D damagingCollider)
     {
         // Remove from cache when exiting
-        if (collision.TryGetComponent(out Damaging damaging))
+        if (damagingCollider.TryGetComponent(out Damaging damaging))
         {
             _overlappingDamagingSources.Remove(damaging);
         }
@@ -71,7 +84,28 @@ public class DefaultDamageableHandling : MonoBehaviour
             _damageable.Healing -= HandleDamageable_OnHealing;
         }
     }
+    private bool IsDamagingAnyReceivingColliders(Collider2D damagingCollider, string kindOfDamageCaused)
+    {
+        if (string.IsNullOrWhiteSpace(kindOfDamageCaused))
+            return true; // If the damaging source doesn't specify a kind, consider it as damaging all colliders
 
+        if (damagingCollider == null)
+            return false;
+
+        if (DamageReceivingColliders == null || DamageReceivingColliders.Length == 0)
+            return true; // Backward-compatible fallback
+
+        foreach (DamageReceivingCollider damageReceivingCollider in DamageReceivingColliders)
+        {
+            if (damageReceivingCollider != null && 
+                damageReceivingCollider.Collider != null && 
+                (string.IsNullOrWhiteSpace(damageReceivingCollider.KindOfDamageReceived) || damageReceivingCollider.KindOfDamageReceived == kindOfDamageCaused) &&
+                damageReceivingCollider.Collider.IsTouching(damagingCollider))
+                return true;
+        }
+
+        return false;
+    }
     private void HandleDamageable_OnTakingDamage(object sender, Damageable.TakingDamageEventArgs e)
     {
         if (ShouldShowPopup && InteractionPromptTransform != null)

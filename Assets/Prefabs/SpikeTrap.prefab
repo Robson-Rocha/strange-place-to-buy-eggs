@@ -176,6 +176,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   AmountOfDamageCaused: 1
+  KindOfDamageCaused: Feet
   openSpikesSprite: {fileID: 21300000, guid: ceb322e866f330e439907b89e363a682, type: 3}
   openSpikesSoundEffect: {fileID: 11400000, guid: a6c1a3243386a3d469646501c775ea1c, type: 2}
   intervalBeforeOpening: 0.25

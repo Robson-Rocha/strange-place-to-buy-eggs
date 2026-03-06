@@ -201,3 +201,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Slash
   AmountOfDamageCaused: 1
+  KindOfDamageCaused: Body
