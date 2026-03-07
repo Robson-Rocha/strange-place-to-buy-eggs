@@ -2,26 +2,16 @@ using RobsonRocha.UnityCommon;
 using UnityEngine;
 
 [RequireComponent(typeof(Moveable))]
+[RequireComponent(typeof(AnimatorParameterBinder))]
+[RequireComponent(typeof(Knockbackable))]
+[RequireComponent(typeof(FieldOfViewDetector))]
+[RequireComponent(typeof(AiBehaviourController))]
 public class Orc : MonoBehaviour
 {
     private AnimatorParameterBinder _animatorParameterBinder;
     private Moveable _moveable;
     private Knockbackable _knockbackable;
-
-    private IAiBehaviour[] _behaviours;
-    private IAiBehaviour _currentBehaviour;
-    private IAiBehaviour CurrentBehaviour
-    {
-        get => _currentBehaviour;
-        set
-        {
-            if (_currentBehaviour != value)
-            {
-                Debug.Log("Orc switched behaviour: " + (value != null ? value.GetType().Name : "null"));
-            }
-            _currentBehaviour = value;
-        }
-    }
+    private FieldOfViewDetector _playerFieldOfViewDetector;
 
     void Awake()
     {
@@ -35,31 +25,11 @@ public class Orc : MonoBehaviour
             _animatorParameterBinder.Bind(Consts.ANIM_PARAM_IS_FACING_RIGHT, () => _moveable.IsFacingRight);
             _animatorParameterBinder.Bind(Consts.ANIM_PARAM_IS_KNOCKING_BACK, () => _knockbackable.IsKnockingBack);
         }
-        _behaviours = GetComponents<IAiBehaviour>();
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        HandleAiBehaviours();
-    }
-
-    public void HandleAiBehaviours()
-    {
-        foreach (var behaviour in _behaviours) {
-            behaviour.HeartBeat();
-        }
-
-        if (CurrentBehaviour != null)
+        if (_moveable != null &&
+            this.TryInitComponent(ref _playerFieldOfViewDetector))
         {
-            CurrentBehaviour.Sense();
-            if (CurrentBehaviour.IsBlocking && CurrentBehaviour.CanAct)
-            {
-                return;
-            }
+            _playerFieldOfViewDetector.GetFacingDirection = () => _moveable.FacingDirection;
         }
-
-        CurrentBehaviour = _behaviours.UpdateActiveAiBehaviour(skip: CurrentBehaviour);
     }
-
 }
