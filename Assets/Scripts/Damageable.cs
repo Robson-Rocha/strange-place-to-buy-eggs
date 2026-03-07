@@ -49,16 +49,8 @@ public class Damageable : MonoBehaviour
     public event EventHandler<HealthChangedEventArgs> CurrentHealthChanged;
     public event EventHandler Death;
 
-    private void Awake()
-    {
-        if (TryGetComponent(out Detectable detectable))
-        {
-            detectable.Names.AddIfNotExists(nameof(Damageable));
-        }
-    }
-
     void Update() =>
-        /*_invulnerabilityTimer = */_invulnerabilityTimer.DecrementTimer();
+        _invulnerabilityTimer.DecrementTimer();
 
     public bool CanTakeDamage() =>
         _invulnerabilityTimer.IsNearZero();

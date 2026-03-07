@@ -54,7 +54,7 @@ public class SpikeTrap : Damaging
             return;
         }
 
-        /*spikeOpeningTimer = */spikeOpeningTimer.DecrementTimer();
+        spikeOpeningTimer.DecrementTimer();
 
         if (spikeOpeningTimer.IsAboveNearZero())
             return;
@@ -79,7 +79,7 @@ public class SpikeTrap : Damaging
             return;
         }
 
-        /*spikeClosingTimer = */spikeClosingTimer.DecrementTimer();
+        spikeClosingTimer.DecrementTimer();
 
         if (spikeClosingTimer.IsAboveNearZero())
             return;

@@ -1,5 +1,4 @@
 ﻿using RobsonRocha.UnityCommon;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -20,12 +19,16 @@ public class SimplePrefabsManager : SingletonMonoBehaviour<SimplePrefabsManager>
     {
         if (_prefabDict.TryGetValue(name, out var prefabInfo))
         {
-            emitter.TryGetComponent(out Collider2D collider);
-
             GameObject prefab = Instantiate(prefabInfo.Prefab, emitter.transform.position + (Vector3)prefabInfo.Offset, Quaternion.identity);
-            if (!prefabInfo.CanCollideWithEmitter && collider != null && prefab.TryGetComponent(out Collider2D prefabCollider))
+
+            Collider2D[] emitterColliders = emitter.GetComponents<Collider2D>();
+            for (int i = 0, l =  emitterColliders.Length; i < l; i++)
             {
-                Physics2D.IgnoreCollision(prefabCollider, collider);
+                Collider2D emitterCollider = emitterColliders[i];
+                if (!prefabInfo.CanCollideWithEmitter && emitterCollider != null && prefab.TryGetComponent(out Collider2D prefabCollider))
+                {
+                    Physics2D.IgnoreCollision(prefabCollider, emitterCollider);
+                }
             }
             if (prefab.TryGetComponent(out IEmittable emittable))
             {

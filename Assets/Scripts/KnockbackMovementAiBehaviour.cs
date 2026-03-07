@@ -20,8 +20,6 @@ public class KnockbackMovementAiBehaviour : AiBehaviourBase
     #region AI Behaviour Implementation
     public override int Priority => BehaviourPriority;
 
-    public override bool CanAct { get; protected set; }
-
     public override bool IsBlocking => true;
     public override void Sense()
     {
