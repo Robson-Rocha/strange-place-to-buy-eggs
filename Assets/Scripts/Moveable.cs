@@ -1,20 +1,6 @@
 using RobsonRocha.UnityCommon;
 using UnityEngine;
 
-public enum MovementMode
-{
-    WalkOnly,
-    RunOnly,
-    WalkAndRun
-}
-
-public enum FacingMode
-{
-    HorizontalOnly,
-    VerticalOnly,
-    AllDirections
-}
-
 [RequireComponent(typeof(Rigidbody2D))]
 public class Moveable : MonoBehaviour
 {

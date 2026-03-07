@@ -7,15 +7,6 @@ using UnityEngine;
 [DefaultExecutionOrder(-10)]
 public class SimplePrefabsManager : SingletonMonoBehaviour<SimplePrefabsManager>
 {
-    [Serializable]
-    public class PrefabInfo
-    {
-        public string Name;
-        public GameObject Prefab;
-        public Vector2 Offset;
-        public bool CanCollideWithEmitter;
-    }
-
     [SerializeField] private List<PrefabInfo> Prefabs;
     private Dictionary<string, PrefabInfo> _prefabDict;
 

@@ -3,32 +3,6 @@ using RobsonRocha.UnityCommon;
 using UnityEngine;
 
 /// <summary>
-/// Pattern for traversing patrol waypoints.
-/// </summary>
-public enum PatrolPattern
-{
-    /// <summary>A → B → C → B → A → B...</summary>
-    Pendulum,
-    /// <summary>A → B → C → A → B → C...</summary>
-    Cycle,
-    /// <summary>Randomly selects next waypoint each time.</summary>
-    Random
-}
-
-/// <summary>
-/// Strategy for recovering to patrol route after displacement.
-/// </summary>
-public enum PatrolRecoveryStrategy
-{
-    /// <summary>Continue to the waypoint we were heading to before displacement.</summary>
-    Continue,
-    /// <summary>Go to the nearest waypoint that was already visited this cycle.</summary>
-    NearestVisited,
-    /// <summary>Go to the absolutely nearest waypoint (may skip unvisited waypoints).</summary>
-    Nearest
-}
-
-/// <summary>
 /// AI behaviour that moves an NPC along a defined set of waypoints.
 /// Supports multiple traversal patterns and recovery strategies.
 /// </summary>

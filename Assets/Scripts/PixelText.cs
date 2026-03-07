@@ -3,13 +3,6 @@ using UnityEngine;
 
 public class PixelText : MonoBehaviour
 {
-    public enum TextAlignment
-    {
-        Left,
-        Center,
-        Right
-    }
-
     [Header("Font & Content")]
     [SerializeField] private PixelFontData font;
     [SerializeField] private string Text;

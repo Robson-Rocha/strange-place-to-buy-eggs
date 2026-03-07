@@ -1,20 +1,10 @@
 ﻿using RobsonRocha.UnityCommon;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using static DefaultDamageableHandling;
-using static UnityEngine.InputManagerEntry;
 
 [RequireComponent(typeof(Damageable))]
 public class DefaultDamageableHandling : MonoBehaviour
 {
-    [Serializable]
-    public class DamageReceivingCollider
-    {
-        public Collider2D Collider;
-        public string KindOfDamageReceived = null;
-    }
-
     [SerializeField] private DamageReceivingCollider[] DamageReceivingColliders;
 
     [SerializeField] private Transform InteractionPromptTransform;
