@@ -179,6 +179,7 @@ public class PatrolWaypointsMovementAiBehaviour : AiBehaviourBase
         }
 
         _currentWaypointIndex = nextIndex;
+        Waypoints[_currentWaypointIndex]?.OnSelected();
         CalculateRouteToCurrentWaypoint();
     }
 
@@ -284,6 +285,7 @@ public class PatrolWaypointsMovementAiBehaviour : AiBehaviourBase
         _pauseTimer = 0f;
         _needsRecovery = false;
 
+        Waypoints[_currentWaypointIndex]?.OnSelected();
         CalculateRouteToCurrentWaypoint();
     }
 
@@ -503,7 +505,20 @@ public class PatrolWaypointsMovementAiBehaviour : AiBehaviourBase
                 continue;
 
             Vector3 currentPosition = Waypoints[i].Position.position;
-            Gizmos.DrawWireSphere(currentPosition, 0.2f);
+
+            // Draw random area bounds if UseRandomArea is enabled
+            if (Waypoints[i].UseRandomArea)
+            {
+                Color areaColor = Gizmos.color;
+                areaColor.a *= 0.5f;
+                Gizmos.color = areaColor;
+                Gizmos.DrawWireCube(currentPosition, new Vector3(Waypoints[i].AreaSize.x, Waypoints[i].AreaSize.y, 0f));
+                Gizmos.color = WaypointsGizmoColor;
+            }
+            else
+            {
+                Gizmos.DrawWireSphere(currentPosition, 0.2f);
+            }
 
             if (!TryGetNextGizmoConnectionIndex(i, out int nextIndex))
                 continue;

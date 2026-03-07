@@ -17,8 +17,6 @@ public class RandomFacingDirectionAiBehaviour : AiBehaviourBase
 
     public override int Priority => BehaviourPriority;
 
-    public override bool CanAct { get; protected set; }
-
     public override bool IsBlocking => false;
     public override void Sense() =>
         CanAct = !IsDisabled && AllowedFacingDirections != Direction.None; 
