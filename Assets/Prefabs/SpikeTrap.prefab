@@ -156,10 +156,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: RobsonRocha.UnityCommon.Runtime::RobsonRocha.UnityCommon.NearestDetector
   Origin: {fileID: 0}
   Name: DamageablesDetector
-  TargetDetectableName: Damageable
+  TargetDetectableName: DamageableFeet
   DetectionRadius: 2
   DetectionOffset: {x: 0, y: 0}
-  RefreshTargetsIntervalInSeconds: 1
+  RefreshTargetsIntervalInSeconds: 0
   DetectionLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -210,4 +210,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: RobsonRocha.UnityCommon.Runtime::RobsonRocha.UnityCommon.Detectable
   Names:
   - Damaging
+  DetectionPoints: []
   Undetectable: 0
